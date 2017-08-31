@@ -1,8 +1,13 @@
-# README #
-Immutable Object Builder
+# BuilderImmutableObject #
+Immutable Object Builder for C# objects.
+
+### How to install with Nuget ?
+```
+Install-Package BuilderImmutableObject
+```
 
 ### What is this repository for? ###
-Library to work with immutable objects with C #.
+Library to work with C# immutable objects.
 
 ### How do I use it? ###
 
