@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>BuilderImmutableObject</id>
+    <version>1.0.1</version>
+    <title>BuilderImmutableObject</title>
+    <authors>Renan Aragão</authors>
+    <owners>renanaragao</owners>
+    <projectUrl>https://github.com/renanaragao/BuilderImmutableObject</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Immutable object builder</description>
+    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>immutable object builder</tags>
+  </metadata>
+</package>
