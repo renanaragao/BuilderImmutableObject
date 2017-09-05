@@ -25,16 +25,6 @@ namespace BuilderImmutableObject
             return this;
         }
 
-        private object GetValueObject(PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetValue(_obj);
-        }
-
-        private static IEnumerable<PropertyInfo> GetPropertiesName()
-        {
-            return typeof(TObject).GetProperties();
-        }
-
         private static string GetPropertyName(Expression expression)
         {
             return ((MemberExpression)expression).Member.Name;
@@ -51,7 +41,7 @@ namespace BuilderImmutableObject
                 propertyInfo.SetValue
                 (
                     obj: _newInstance,
-                    value: Convert.ChangeType(GetValueObject(propertyInfo), propertyInfo.PropertyType)
+                    value: GetValueObject(propertyInfo)
                 );
             }
 
@@ -61,6 +51,16 @@ namespace BuilderImmutableObject
             }
 
             return _newInstance;
+        }
+
+        private static IEnumerable<PropertyInfo> GetPropertiesName()
+        {
+            return typeof(TObject).GetProperties();
+        }
+
+        private object GetValueObject(PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetValue(_obj);
         }
     }
 }

@@ -10,13 +10,15 @@ namespace BuilderImmutableObject.Tests
 
         }
 
-        public Car(string color, int size)
+        public Car(string color, int size, DateTime? data)
         {
             Color = color;
             Size = size;
+            Data = data;
         }
 
         public string Color { get; private set; }
         public int Size { get; private set; }
+        public DateTime? Data { get; private set; }
     }
 }
