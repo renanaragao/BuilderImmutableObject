@@ -10,7 +10,7 @@ namespace BuilderImmutableObject.Tests
         [SetUp]
         public void SetUp()
         {
-            _car = new Car(color: "red", size: 78, data: null);
+            _car = new Car(color: "red", size: 78, date: null);
         }
 
         [Test]
@@ -35,18 +35,20 @@ namespace BuilderImmutableObject.Tests
             var newCar = _car
                 .Set(x => x.Color, "black")
                 .Set(x => x.Size, 678)
-                .Set(x => x.Data, today)
+                .Set(x => x.Date, today)
+                .Set(x => x.DateString, "newString")
                 .Build();
 
             Assert.AreNotSame(_car, newCar);
 
             Assert.AreEqual(78, _car.Size);
             Assert.AreEqual("red", _car.Color);
-            Assert.IsNull(_car.Data);
+            Assert.IsNull(_car.Date);
 
             Assert.AreEqual(678, newCar.Size);
             Assert.AreEqual("black", newCar.Color);
-            Assert.AreEqual(today, newCar.Data);
+            Assert.AreEqual(today, newCar.Date);
+            Assert.AreEqual(today.ToString(), newCar.DateString);
         }
     }
 }

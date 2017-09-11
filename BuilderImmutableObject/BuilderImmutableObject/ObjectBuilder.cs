@@ -32,13 +32,13 @@ namespace BuilderImmutableObject
 
         public TObject Build()
         {
-            var propertiesNames = GetPropertiesName();
+            var properties = GetProperties();
 
             _newInstance = Activator.CreateInstance<TObject>();
 
-            foreach (var propertyInfo in propertiesNames.Where(x => !_selectedProperties.ContainsKey(x.Name)))
+            foreach (var propertyInfo in properties.Where(x => !_selectedProperties.ContainsKey(x.Name)))
             {
-                propertyInfo.SetValue
+                if(propertyInfo.CanWrite) propertyInfo.SetValue
                 (
                     obj: _newInstance,
                     value: GetValueObject(propertyInfo)
@@ -47,13 +47,15 @@ namespace BuilderImmutableObject
 
             foreach (var property in _selectedProperties)
             {
-                _newInstance.GetType().GetProperty(property.Key).SetValue(_newInstance, property.Value);
+                var propertyInfo = _newInstance.GetType().GetProperty(property.Key);
+
+                if(propertyInfo.CanWrite) propertyInfo.SetValue(_newInstance, property.Value);
             }
 
             return _newInstance;
         }
 
-        private static IEnumerable<PropertyInfo> GetPropertiesName()
+        private static IEnumerable<PropertyInfo> GetProperties()
         {
             return typeof(TObject).GetProperties();
         }
