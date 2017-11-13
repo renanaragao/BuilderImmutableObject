@@ -50,5 +50,17 @@ namespace BuilderImmutableObject.Tests
             Assert.AreEqual(today, newCar.Date);
             Assert.AreEqual(today.ToString(), newCar.DateString);
         }
+
+        [Test]
+        public void Must_Be_Possible_To_Instantiate_Class_With_Private_Constructor()
+        {
+            var inventory = Inventory.Start("foo");
+
+            Assert.AreEqual("foo", inventory.Description);
+
+            inventory = inventory.Set(x => x.Description, "bar").Build();
+
+            Assert.AreEqual("bar", inventory.Description);
+        }
     }
 }

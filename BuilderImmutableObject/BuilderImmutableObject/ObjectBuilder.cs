@@ -34,7 +34,7 @@ namespace BuilderImmutableObject
         {
             var properties = GetProperties();
 
-            _newInstance = Activator.CreateInstance<TObject>();
+            _newInstance = (TObject)Activator.CreateInstance(typeof(TObject), true);
 
             foreach (var propertyInfo in properties.Where(x => !_selectedProperties.ContainsKey(x.Name)))
             {
