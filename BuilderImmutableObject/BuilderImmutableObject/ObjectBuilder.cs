@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -25,16 +24,6 @@ namespace BuilderImmutableObject
             return this;
         }
 
-        private object GetValueObject(PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetValue(_obj);
-        }
-
-        private static IEnumerable<PropertyInfo> GetPropertiesName()
-        {
-            return typeof(TObject).GetProperties();
-        }
-
         private static string GetPropertyName(Expression expression)
         {
             return ((MemberExpression)expression).Member.Name;
@@ -46,21 +35,30 @@ namespace BuilderImmutableObject
 
             _newInstance = Activator.CreateInstance<TObject>();
 
-            foreach (var propertyInfo in propertiesNames.Where(x => !_selectedProperties.ContainsKey(x.Name)))
+            foreach (var propertyInfo in propertiesNames)
             {
+                var value = _selectedProperties.ContainsKey(propertyInfo.Name)
+                    ? _selectedProperties[propertyInfo.Name]
+                    : default(object);
+
                 propertyInfo.SetValue
                 (
                     obj: _newInstance,
-                    value: Convert.ChangeType(GetValueObject(propertyInfo), propertyInfo.PropertyType)
+                    value: value ?? GetValueObject(propertyInfo)
                 );
             }
 
-            foreach (var property in _selectedProperties)
-            {
-                _newInstance.GetType().GetProperty(property.Key).SetValue(_newInstance, property.Value);
-            }
-
             return _newInstance;
+        }
+
+        private static IEnumerable<PropertyInfo> GetPropertiesName()
+        {
+            return typeof(TObject).GetProperties();
+        }
+
+        private object GetValueObject(PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetValue(_obj);
         }
     }
 }
