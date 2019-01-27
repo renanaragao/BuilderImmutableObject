@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using static System.Linq.Expressions.Expression;
 
 namespace BuilderImmutableObject
 {
     public class ObjectBuilder<TObject>
     {
         private readonly TObject _obj;
-        private TObject _newInstance;
         private readonly IDictionary<string, object> _selectedProperties;
 
         public ObjectBuilder(TObject obj)
@@ -30,35 +31,54 @@ namespace BuilderImmutableObject
         }
 
         public TObject Build()
+            => Lambda<Func<TObject>>(Block(GetChangeProperties())).Compile()();
+
+        private IEnumerable<Expression> GetChangeProperties()
         {
-            var propertiesNames = GetPropertiesName();
+            var typeObject = typeof(TObject);
 
-            _newInstance = Activator.CreateInstance<TObject>();
+            var newInstance = New(typeObject);
 
-            foreach (var propertyInfo in propertiesNames)
+            var members = GetMembers(typeObject);
+
+            var entity = Parameter(typeObject, "entity");
+
+            foreach (var member in members)
             {
-                var value = _selectedProperties.ContainsKey(propertyInfo.Name)
-                    ? _selectedProperties[propertyInfo.Name]
-                    : default(object);
+                var value = _selectedProperties.ContainsKey(member.Name)
+                    ? _selectedProperties[member.Name]
+                    : GetValueObject((PropertyInfo)member);
 
-                propertyInfo.SetValue
-                (
-                    obj: _newInstance,
-                    value: value ?? GetValueObject(propertyInfo)
-                );
+                var property = PropertyOrField(entity, member.Name);
+                var assign = Assign(property, Constant(value));
+                var lambda = Lambda<Func<TObject, object>>(assign, entity);
+
+                yield return SetProperty(lambda);
             }
-
-            return _newInstance;
         }
 
-        private static IEnumerable<PropertyInfo> GetPropertiesName()
-        {
-            return typeof(TObject).GetProperties();
-        }
+        private static IEnumerable<MemberInfo> GetMembers(Type type)
+            => type.GetMembers(BindingFlags.GetProperty |
+                               BindingFlags.GetField |
+                               BindingFlags.SetField |
+                               BindingFlags.SetProperty);
 
         private object GetValueObject(PropertyInfo propertyInfo)
         {
             return propertyInfo.GetValue(_obj);
+        }
+
+        public static Expression<Action<TEntity, TValue>> SetProperty<TEntity,
+            TValue>(Expression<Func<TEntity, TValue>> propertyGetExpression)
+        {
+            var entityParameterExpression =
+                (ParameterExpression)((MemberExpression)propertyGetExpression.Body).Expression;
+            var valueParameterExpression = Parameter(typeof(TValue));
+
+            return Lambda<Action<TEntity, TValue>>(
+                Assign(propertyGetExpression.Body, valueParameterExpression),
+                entityParameterExpression,
+                valueParameterExpression);
         }
     }
 }
