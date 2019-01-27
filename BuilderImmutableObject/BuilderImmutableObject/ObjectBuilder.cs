@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -8,7 +9,6 @@ namespace BuilderImmutableObject
     public class ObjectBuilder<TObject>
     {
         private readonly TObject _obj;
-        private TObject _newInstance;
         private readonly IDictionary<string, object> _selectedProperties;
 
         public ObjectBuilder(TObject obj)
@@ -25,40 +25,35 @@ namespace BuilderImmutableObject
         }
 
         private static string GetPropertyName(Expression expression)
-        {
-            return ((MemberExpression)expression).Member.Name;
-        }
+        => ((MemberExpression)expression).Member.Name;
 
         public TObject Build()
         {
-            var propertiesNames = GetPropertiesName();
+            var type = typeof(TObject);
 
-            _newInstance = Activator.CreateInstance<TObject>();
+            var properties = GetProperties(type);
 
-            foreach (var propertyInfo in propertiesNames)
+            var newInstance = Activator.CreateInstance(type, true);
+
+            foreach (var propertyInfo in properties)
             {
                 var value = _selectedProperties.ContainsKey(propertyInfo.Name)
                     ? _selectedProperties[propertyInfo.Name]
-                    : default(object);
+                    : propertyInfo.GetValue(_obj);
 
                 propertyInfo.SetValue
                 (
-                    obj: _newInstance,
-                    value: value ?? GetValueObject(propertyInfo)
+                    obj: newInstance,
+                    value: value
                 );
             }
 
-            return _newInstance;
+            return (TObject)newInstance;
         }
 
-        private static IEnumerable<PropertyInfo> GetPropertiesName()
-        {
-            return typeof(TObject).GetProperties();
-        }
-
-        private object GetValueObject(PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetValue(_obj);
-        }
+        private static IEnumerable<PropertyInfo> GetProperties(Type type)
+            => type
+                .GetProperties()
+                .Where(x => x.CanRead && x.CanWrite);
     }
 }

@@ -5,10 +5,12 @@ namespace BuilderImmutableObject.Test
     public class BuilderTest
     {
         private readonly Car _car;
+        private readonly Wheel _wheel;
 
         public BuilderTest()
         {
             _car = new Car(color: "red", size: 78, wheels: new[] {1, 2});
+            _wheel = new Wheel(rim: 34, brand: "Continental");
         }
 
         [Fact]
@@ -51,6 +53,20 @@ namespace BuilderImmutableObject.Test
 
             Assert.Equal(new[] { 1, 2 }, _car.Wheels);
             Assert.Equal(new[] { 3 }, newCar.Wheels);
+        }
+
+        [Fact]
+        public void Should_Copy_Wheels()
+        {
+            var newWheel = _wheel.Set(x => x.Brand, "Pirelli").Build();
+
+            Assert.NotSame(_wheel, newWheel);
+
+            Assert.Equal(34, _wheel.Rim);
+            Assert.Equal("Continental", _wheel.Brand);
+
+            Assert.Equal(34, newWheel.Rim);
+            Assert.Equal("Pirelli", newWheel.Brand);
         }
     }
 }
