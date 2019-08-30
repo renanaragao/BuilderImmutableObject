@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace BuilderImmutableObject
 {
@@ -31,17 +33,17 @@ namespace BuilderImmutableObject
         {
             var type = typeof(TObject);
 
-            var properties = GetProperties(type);
+            Span<PropertyInfo> properties = GetProperties(type);
 
             var newInstance = Activator.CreateInstance(type, true);
 
-            foreach (var propertyInfo in properties)
+            for (int i = 0; i < properties.Length; i++)
             {
-                var value = _selectedProperties.ContainsKey(propertyInfo.Name)
-                    ? _selectedProperties[propertyInfo.Name]
-                    : propertyInfo.GetValue(_obj);
+                object value;
+                if(!_selectedProperties.TryGetValue(properties[i].Name, out value))
+                    value = properties[i].GetValue(_obj);
 
-                propertyInfo.SetValue
+                properties[i].SetValue
                 (
                     obj: newInstance,
                     value: value
@@ -51,9 +53,10 @@ namespace BuilderImmutableObject
             return (TObject)newInstance;
         }
 
-        private static IEnumerable<PropertyInfo> GetProperties(Type type)
+        private static PropertyInfo[] GetProperties(Type type)
             => type
                 .GetProperties()
-                .Where(x => x.CanRead && x.CanWrite);
+                .Where(x => x.CanRead && x.CanWrite)
+                .ToArray();
     }
 }

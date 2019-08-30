@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	<LangVersion>7.2</LangVersion>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -12,6 +13,10 @@
 	<PackageProjectUrl>https://github.com/renanaragao/BuilderImmutableObject</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/renanaragao/BuilderImmutableObject</RepositoryUrl>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="System.Memory" Version="4.5.3" />
+  </ItemGroup>
 
 </Project>
 
