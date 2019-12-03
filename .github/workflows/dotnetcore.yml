@@ -14,4 +14,4 @@ jobs:
       with:
         dotnet-version: 2.2.108
     - name: Tests 
-      run: dotnet test
+      run: dotnet test src/BuilderImmutableObject.sln
