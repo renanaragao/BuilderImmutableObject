@@ -1,5 +1,6 @@
 # BuilderImmutableObject #
-Immutable Object Builder for C# objects.
+
+Facilitates work with immutable objects, allows changing storage restrictions and prevents importing source objects
 
 ### How to install with Nuget ?
 ```
