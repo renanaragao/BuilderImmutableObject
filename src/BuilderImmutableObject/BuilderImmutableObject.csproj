@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
 	<LangVersion>7.2</LangVersion>
   </PropertyGroup>
   
@@ -12,6 +12,9 @@
 	<Description>Migrating from full framework to .netstandard</Description>
 	<PackageProjectUrl>https://github.com/renanaragao/BuilderImmutableObject</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/renanaragao/BuilderImmutableObject</RepositoryUrl>
+	<AssemblyVersion>3.0.0.0</AssemblyVersion>
+	<FileVersion>3.0.0.0</FileVersion>
+	<Version>3.0.0</Version>
   </PropertyGroup>
   
   <ItemGroup>
