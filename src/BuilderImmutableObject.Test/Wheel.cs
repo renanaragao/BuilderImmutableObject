@@ -2,12 +2,6 @@
 {
     public class Wheel
     {
-
-        private Wheel()
-        {
-            
-        }
-
         public Wheel(int rim, string brand)
         {
             Rim = rim;
