@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace BuilderImmutableObject
 {
@@ -26,8 +24,7 @@ namespace BuilderImmutableObject
             return this;
         }
 
-        private static string GetPropertyName(Expression expression)
-        => ((MemberExpression)expression).Member.Name;
+        private static string GetPropertyName(Expression expression) => ((MemberExpression)expression).Member.Name;
 
         public TObject Build()
         {
@@ -35,12 +32,13 @@ namespace BuilderImmutableObject
 
             Span<PropertyInfo> properties = GetProperties(type);
 
-            var newInstance = Activator.CreateInstance(type, true);
+            var constructorDefault = type.GetConstructor(Type.EmptyTypes);
+
+            var newInstance = constructorDefault == null ? InvokeConstructorWithParameters(type) : constructorDefault.Invoke(null);
 
             for (int i = 0; i < properties.Length; i++)
             {
-                object value;
-                if(!_selectedProperties.TryGetValue(properties[i].Name, out value))
+                if (!_selectedProperties.TryGetValue(properties[i].Name, out object value))
                     value = properties[i].GetValue(_obj);
 
                 properties[i].SetValue
@@ -51,6 +49,20 @@ namespace BuilderImmutableObject
             }
 
             return (TObject)newInstance;
+        }
+
+        private static object InvokeConstructorWithParameters(Type type)
+        {
+            var parametrizedCtor = type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length > 0);
+
+            return parametrizedCtor.Invoke(parametrizedCtor.GetParameters()
+                .Select(p =>
+                            p.HasDefaultValue ? p.DefaultValue :
+                            p.ParameterType.IsValueType && Nullable.GetUnderlyingType(p.ParameterType) == null
+                                ? Activator.CreateInstance(p.ParameterType)
+                                : null
+                        ).ToArray()
+                    );
         }
 
         private static PropertyInfo[] GetProperties(Type type)
